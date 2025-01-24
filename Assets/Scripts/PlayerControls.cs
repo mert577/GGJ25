@@ -49,7 +49,17 @@ public class PlayerControls : MonoBehaviour
     [SerializeField]
     GameObject stompParticlePrefab;
 
+    [SerializeField]
+    float stompRadius;
+    [SerializeField]
+    int stompDamage;
 
+    [SerializeField]
+    Health health;
+
+
+    [SerializeField]
+    Collider2D playerCollider;
     // Start is called before the first frame update
 
 
@@ -61,7 +71,7 @@ public class PlayerControls : MonoBehaviour
 
     void Start()
     {
-
+        bubble.GetComponent<Rigidbody2D>().isKinematic = true;
     }
 
     // Update is called once per frame
@@ -84,6 +94,14 @@ public class PlayerControls : MonoBehaviour
         }
 
         if (Input.GetMouseButtonDown(1))
+        {
+            if (!isBubbled)
+            {
+                RecallBubble();
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             if (!isBubbled)
             {
@@ -132,17 +150,38 @@ public class PlayerControls : MonoBehaviour
 
         IEnumerator JumpToBubbleCoroutine()
         {
+            playerCollider.enabled = false;
             float jumpTime = Vector3.Distance(transform.position, bubble.transform.position) / jumpSpeed;
             jumpTime = Mathf.Clamp(jumpTime, minJumpTime, maxJumpTime);
             isJumping = true;
             rb.DOMove(bubble.transform.position, jumpTime);
+            
             playerCoreSprite.transform.DOLocalMoveY(jumpHeight, jumpTime).SetEase(jumpCurve);
+            playerCoreSprite.transform.DORotate(new Vector3(0, 0, 360), jumpTime, RotateMode.FastBeyond360);
             yield return new WaitForSeconds(jumpTime);
+            health.TurnInvincibleForTime(0.33f);
             isJumping = false;
-            StopCoroutine(bubbleCoroutine);
+            playerCollider.enabled = true;
+            if (bubbleCoroutine != null)
+            {
+                StopCoroutine(bubbleCoroutine);
+            }
             ResetBubble();
             impulseSource.GenerateImpulseWithVelocity(Random.insideUnitCircle.normalized * screenShakeForce);
             SpawnParticle(stompParticlePrefab, transform.position);
+
+            //get all colliders in a radius
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, stompRadius, layerMask: LayerMask.GetMask("Enemy"));
+            foreach (var collider in colliders)
+            {
+                if (collider.TryGetComponent<Health>(out Health enemyHealth))
+                {
+                    enemyHealth.TakeDamage(stompDamage, transform.position, true);
+                }
+            }
+
+    
+
 
         }
 
@@ -151,23 +190,15 @@ public class PlayerControls : MonoBehaviour
     }
 
 
-    void ThrowBubble()
+    private void OnDrawGizmos()
     {
+        Gizmos.DrawWireSphere(transform.position, stompRadius);
+    }
 
-        //set bubble parent to null so it doesn't follow the player
-        //add force to the bubble in the direction of the mouse
-
-        //after a few seconds lerp the bubble back to the player
-        IEnumerator ThrowBubbleCoroutine()
+    void RecallBubble()
+    {
+        IEnumerator RecallBubbleCoroutine()
         {
-            bubble.transform.parent = null;
-            isBubbled = false;
-            Rigidbody2D bubbleRb = bubble.GetComponent<Rigidbody2D>();
-            bubbleRb.velocity = rb.velocity;
-            bubbleRb.isKinematic = false;
-            bubbleRb.AddForce(directionToMouse * bubbleThrowForce, ForceMode2D.Impulse);
-            yield return new WaitForSeconds(bubbleWaitTime);
-
 
             //lerp the bubble back to the player
             float timeElapsed = 0;
@@ -193,7 +224,19 @@ public class PlayerControls : MonoBehaviour
 
         }
 
-        bubbleCoroutine = StartCoroutine(ThrowBubbleCoroutine());
+        bubbleCoroutine = StartCoroutine(RecallBubbleCoroutine());
+    }
+    void ThrowBubble()
+    {
+
+
+        bubble.transform.parent = null;
+        isBubbled = false;
+        Rigidbody2D bubbleRb = bubble.GetComponent<Rigidbody2D>();
+        bubbleRb.velocity = rb.velocity;
+        bubbleRb.isKinematic = false;
+        bubbleRb.AddForce(directionToMouse * bubbleThrowForce, ForceMode2D.Impulse);
+
 
     }
 
