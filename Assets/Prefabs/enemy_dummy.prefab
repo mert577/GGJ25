@@ -76,6 +76,10 @@ MonoBehaviour:
       m_Calls: []
   isStunned: 0
   isEnemy: 1
+  isDead: 0
+  minResourceDrop: 1
+  maxResourceDrop: 5
+  resourceDrop: {fileID: 3927964224658056003, guid: 38eb4bcc40fff5c4b9a4d9e81ca93a5a, type: 3}
 --- !u!58 &8404146396581137187
 CircleCollider2D:
   m_ObjectHideFlags: 0

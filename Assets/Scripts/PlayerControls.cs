@@ -9,7 +9,7 @@ using Cinemachine;
 public class PlayerControls : MonoBehaviour
 {
 
-    
+
     [SerializeField]
     Rigidbody2D rb;
 
@@ -69,6 +69,27 @@ public class PlayerControls : MonoBehaviour
     GameObject hurtParticlePrefab;
 
 
+    float jumpCooldown = 1f;
+    float jumpCooldownTimer = 0f;
+
+
+
+    IEnumerator LerpObjectToPosition(GameObject objectToMove, float time, System.Action callback = null)
+    {
+        float timeElapsed = 0;
+        Vector3 initialPosition = objectToMove.transform.position;
+        while (timeElapsed < time)
+        {
+            objectToMove.transform.position = Vector3.Lerp(initialPosition, transform.position, timeElapsed / time);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+        if (callback != null)
+        {
+            callback();
+        }
+    }
+
 
     public void SpawnHurtParticle(int health)
     {
@@ -88,6 +109,14 @@ public class PlayerControls : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        jumpCooldownTimer -= Time.deltaTime;
+        if (jumpCooldownTimer < 0)
+        {
+            jumpCooldownTimer = 0;
+        }
+
+        UIManager.instance.UpdateJumpCooldown(jumpCooldownTimer / (jumpCooldown * ModifierManager.instance.TryGetModifierValue("jumpCooldown")));
 
         CalculateDirectionToMouse();
         movementInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
@@ -114,7 +143,7 @@ public class PlayerControls : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (!isBubbled)
+            if (!isBubbled && !isJumping && jumpCooldownTimer <= 0)
             {
                 JumpToBubble();
             }
@@ -123,6 +152,21 @@ public class PlayerControls : MonoBehaviour
 
     }
 
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Coin"))
+        {
+            //as callback add coin to player and destroy coin
+            StartCoroutine(LerpObjectToPosition(other.gameObject, 0.5f, () =>
+            {
+                Destroy(other.gameObject);
+                UpgradeManager.instance.AddCoins(1);
+            }));
+
+
+        }
+    }
 
 
     void Movement()
@@ -161,13 +205,17 @@ public class PlayerControls : MonoBehaviour
 
         IEnumerator JumpToBubbleCoroutine()
         {
+
+            jumpCooldownTimer = jumpCooldown * ModifierManager.instance.TryGetModifierValue("jumpCooldown");
+
+
             playerCollider.enabled = false;
             bubble.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
             float jumpTime = Vector3.Distance(transform.position, bubble.transform.position) / jumpSpeed;
             jumpTime = Mathf.Clamp(jumpTime, minJumpTime, maxJumpTime);
             isJumping = true;
             rb.DOMove(bubble.transform.position, jumpTime);
-            
+
             playerCoreSprite.transform.DOLocalMoveY(jumpHeight, jumpTime).SetEase(jumpCurve);
             playerCoreSprite.transform.DORotate(new Vector3(0, 0, 360), jumpTime, RotateMode.FastBeyond360);
             playerCoreSprite.transform.DOScale(Vector3.one * 1.5f, jumpTime).SetEase(scaleDuringJump);
@@ -193,12 +241,12 @@ public class PlayerControls : MonoBehaviour
                 }
             }
 
-            
+
             playerCoreSprite.transform.localScale = Vector3.one;
             playerCoreSprite.transform.localPosition = Vector3.zero;
 
         }
-        
+
         StartCoroutine(JumpToBubbleCoroutine());
 
     }
@@ -249,7 +297,7 @@ public class PlayerControls : MonoBehaviour
         Rigidbody2D bubbleRb = bubble.GetComponent<Rigidbody2D>();
         bubbleRb.velocity = rb.velocity;
         bubbleRb.isKinematic = false;
-        bubbleRb.AddForce(directionToMouse * bubbleThrowForce, ForceMode2D.Impulse);
+        bubbleRb.AddForce(directionToMouse * bubbleThrowForce * ModifierManager.instance.TryGetModifierValue("throwForce"), ForceMode2D.Impulse);
 
 
     }

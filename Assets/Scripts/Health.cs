@@ -31,6 +31,9 @@ public class Health : MonoBehaviour
 
     public bool isDead = false;
 
+    public int minResourceDrop, maxResourceDrop;
+    public GameObject resourceDrop;
+
 
 
 
@@ -127,6 +130,12 @@ public class Health : MonoBehaviour
         if (isEnemy)
         {
             WaveSpawner.instance.aliveEnemies--;
+            int resourceDropAmount = Random.Range(minResourceDrop, maxResourceDrop);
+            for (int i = 0; i < resourceDropAmount; i++)
+            {
+                Vector2 randomPos = (Vector2)transform.position + Random.insideUnitCircle * 1.5f;
+                Instantiate(resourceDrop, randomPos, Quaternion.identity);
+            }
         }
         Destroy(gameObject, .2f);
 
