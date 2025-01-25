@@ -9,7 +9,7 @@ using Cinemachine;
 public class PlayerControls : MonoBehaviour
 {
 
-
+    
     [SerializeField]
     Rigidbody2D rb;
 
@@ -60,9 +60,20 @@ public class PlayerControls : MonoBehaviour
 
     [SerializeField]
     Collider2D playerCollider;
+
+
+    [SerializeField]
+    AnimationCurve scaleDuringJump;
     // Start is called before the first frame update
+    [SerializeField]
+    GameObject hurtParticlePrefab;
 
 
+
+    public void SpawnHurtParticle(int health)
+    {
+        SpawnParticle(hurtParticlePrefab, transform.position);
+    }
     void SpawnParticle(GameObject particlePrefab, Vector3 position)
     {
         GameObject particle = Instantiate(particlePrefab, position, Quaternion.identity);
@@ -151,6 +162,7 @@ public class PlayerControls : MonoBehaviour
         IEnumerator JumpToBubbleCoroutine()
         {
             playerCollider.enabled = false;
+            bubble.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
             float jumpTime = Vector3.Distance(transform.position, bubble.transform.position) / jumpSpeed;
             jumpTime = Mathf.Clamp(jumpTime, minJumpTime, maxJumpTime);
             isJumping = true;
@@ -158,6 +170,7 @@ public class PlayerControls : MonoBehaviour
             
             playerCoreSprite.transform.DOLocalMoveY(jumpHeight, jumpTime).SetEase(jumpCurve);
             playerCoreSprite.transform.DORotate(new Vector3(0, 0, 360), jumpTime, RotateMode.FastBeyond360);
+            playerCoreSprite.transform.DOScale(Vector3.one * 1.5f, jumpTime).SetEase(scaleDuringJump);
             yield return new WaitForSeconds(jumpTime);
             health.TurnInvincibleForTime(0.33f);
             isJumping = false;
@@ -180,11 +193,12 @@ public class PlayerControls : MonoBehaviour
                 }
             }
 
-    
-
+            
+            playerCoreSprite.transform.localScale = Vector3.one;
+            playerCoreSprite.transform.localPosition = Vector3.zero;
 
         }
-
+        
         StartCoroutine(JumpToBubbleCoroutine());
 
     }

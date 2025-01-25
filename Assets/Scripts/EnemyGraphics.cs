@@ -32,7 +32,7 @@ public class EnemyGraphics : MonoBehaviour
     }
 
 
-    public void PlayDamageAnimation()
+    public void PlayDamageAnimation(int health)
     {
         IEnumerator DamageAnimation()
         {

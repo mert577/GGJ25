@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3382398486083390620}
   - component: {fileID: 9041588077238562929}
   m_Layer: 6
-  m_Name: enemy_dummy
+  m_Name: enemy_fast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31,8 +31,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -8.049646, y: 7.2214766, z: -0.038735203}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.51, y: 0.51, z: 0.51}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6918416412807770786}
   - {fileID: 501311699065882159}
@@ -76,6 +76,7 @@ MonoBehaviour:
       m_Calls: []
   isStunned: 0
   isEnemy: 1
+  isDead: 0
 --- !u!58 &8404146396581137187
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -152,7 +153,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTransform: {fileID: 0}
   rb: {fileID: 3382398486083390620}
-  maxSpeed: 1.5
+  maxSpeed: 4
   accelerationForce: 25
   stunned: 0
   health: {fileID: 0}
@@ -230,7 +231,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: 5af56c9f849a71d42bb0082520d4b9c4, type: 3}
-  m_Color: {r: 0.83, g: 0.27639, b: 0.27639, a: 1}
+  m_Color: {r: 0.7483959, g: 0.83137256, b: 0.27450988, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

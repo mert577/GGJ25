@@ -23,9 +23,13 @@ public class Health : MonoBehaviour
 
     //event for when gets damaged
 
-    public UnityEvent OnDamageTaken = new UnityEvent();
+    public UnityEvent<int> OnDamageTaken = new UnityEvent<int>();
 
     public bool isStunned = false;
+
+    public bool isEnemy = false;
+
+    public bool isDead = false;
 
 
 
@@ -48,7 +52,7 @@ public class Health : MonoBehaviour
         if (other.gameObject.TryGetComponent<Damager>(out Damager damager))
         {
 
-            TakeDamage(damager.damageAmount,damager.transform.position, damager.isKnockback);
+            TakeDamage(damager.damageAmount, damager.transform.position, damager.isKnockback);
         }
     }
 
@@ -93,7 +97,7 @@ public class Health : MonoBehaviour
         }
 
         currentHealth -= damage;
-        OnDamageTaken.Invoke();
+        OnDamageTaken.Invoke(currentHealth);
 
         if (knockback)
         {
@@ -101,7 +105,7 @@ public class Health : MonoBehaviour
             rb.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
             StartCoroutine(TurnStunned());
         }
-        
+
         StartCoroutine(TurnInvincible(invincibilityTime));
         if (currentHealth <= 0)
         {
@@ -112,7 +116,19 @@ public class Health : MonoBehaviour
 
     public void Die()
     {
-        Destroy(gameObject,.2f);
+
+        if (isDead)
+        {
+            return;
+        }
+
+        isDead = true;
+
+        if (isEnemy)
+        {
+            WaveSpawner.instance.aliveEnemies--;
+        }
+        Destroy(gameObject, .2f);
 
     }
 
