@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+using UnityEngine.UI;
+
 public class UpgradeButton : MonoBehaviour
 {
 
     public Upgrade upgradeData;
     public TextMeshProUGUI upgradeNameText;
     public TextMeshProUGUI upgradeCostText;
+
+
+    public Image upgradeImage;
+
+    public Image cantBuyImage;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,6 +27,21 @@ public class UpgradeButton : MonoBehaviour
     {
         
     }
+
+    public void UpdateButtonState()
+    {
+        if (UpgradeManager.instance.CanBuyUpgrade(upgradeData))
+        {
+            Debug.Log("Can buy upgrade: " + upgradeData.upgradeName);
+            cantBuyImage.gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.Log("Can't buy upgrade: " + upgradeData.upgradeName);
+            cantBuyImage.gameObject.SetActive(true);
+        }
+    }
+
 
     public void OnButtonClicked()
     {
@@ -43,6 +65,7 @@ public class UpgradeButton : MonoBehaviour
         upgradeData = upgrade;
         upgradeNameText.text = upgrade.upgradeName;
         upgradeCostText.text = upgrade.upgradeCost.ToString();
+        upgradeImage.sprite = upgrade.upgradeSprite;
      
     }
 }

@@ -21,14 +21,17 @@ public class DotDamager : MonoBehaviour
     }
 
 
-
+     private void OnDrawGizmos() {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, damageRadius*ModifierManager.instance.TryGetModifierValue("dotArea"));
+    }
     public void StartAnimation(){
 
         IEnumerator StartAnimation()
         {
+            isActivelyDamaging = true;
             transform.DOScale(Vector3.one* damageRadius*ModifierManager.instance.TryGetModifierValue("dotArea"), 0.5f).SetEase(Ease.OutBack);
             yield return new WaitForSeconds(0.5f);
-            isActivelyDamaging = true;
         }
 
         StartCoroutine(StartAnimation());
@@ -63,8 +66,9 @@ public class DotDamager : MonoBehaviour
         damageTimer -= Time.deltaTime;
         if (damageTimer <= 0)
         {
-            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, damageRadius);
+            Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, damageRadius*ModifierManager.instance.TryGetModifierValue("dotArea"), LayerMask.GetMask("Enemy"));
             transform.DORewind();
+            transform.localScale = Vector3.one* damageRadius*ModifierManager.instance.TryGetModifierValue("dotArea");
             transform.DOPunchScale(Vector3.one * 0.1f, 0.1f);
             foreach (Collider2D collider in colliders)
             {

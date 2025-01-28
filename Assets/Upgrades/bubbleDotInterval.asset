@@ -15,7 +15,6 @@ MonoBehaviour:
   upgradeName: Bubble Attack Rate
   upgradeDescription: Your bubble's AOE attack triggers faster
   upgradeCost: 15
-  modifierValue: 1.5
+  upgradeSprite: {fileID: 21300000, guid: 6274c49703bca76448a5e22fc6d609c6, type: 3}
   modifierKey: dotInterval
-  upgradeLevel: 4
-  modifierValues: []
+  modifierValue: 1.5

@@ -15,5 +15,6 @@ MonoBehaviour:
   upgradeName: Throw+
   upgradeDescription: Throw your bubble further
   upgradeCost: 15
-  modifierValue: 1.5
+  upgradeSprite: {fileID: 21300000, guid: 70deac923f30058439b9c23e93020705, type: 3}
   modifierKey: throwForce
+  modifierValue: 1.5

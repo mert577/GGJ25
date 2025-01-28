@@ -9,6 +9,9 @@ public class Upgrade : ScriptableObject
     public int upgradeCost;
 
 
+    public Sprite upgradeSprite;
+
+
     public virtual void ApplyUpgrade()
     {
         Debug.Log("Applying upgrade: " + upgradeName);

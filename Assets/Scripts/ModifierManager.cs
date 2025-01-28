@@ -61,7 +61,7 @@ public class ModifierManager : MonoBehaviour
         {
             if(modifierDictionary[modifierName] >= modifierLevelValues[modifierName].Count)
             {
-                Debug.LogError("Modifier " + modifierName + " is at max level");
+//                Debug.LogError("Modifier " + modifierName + " is at max level");
                 return modifierLevelValues[modifierName][modifierLevelValues[modifierName].Count - 1];
             }
 

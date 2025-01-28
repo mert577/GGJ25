@@ -12,9 +12,13 @@ public class WaveSpawner : MonoBehaviour
     public EnemyCostData[] mediumEnemyPool;
     public EnemyCostData[] hardEnemyPool;
 
+    public EnemyCostData[] endgameEnemyPool;
+
 
 
     public List<int> waveCurrencies;
+
+    public List<int> waveNumberToPoolMap;
 
 
     public Transform playerPosition;
@@ -34,6 +38,10 @@ public class WaveSpawner : MonoBehaviour
 
     public int currentWave = 0;
 
+    public List<EnemyCostData[]> enemyPools = new List<EnemyCostData[]>();
+
+    public bool gameStarted = false;
+
 
     void Awake()
     {
@@ -47,43 +55,74 @@ public class WaveSpawner : MonoBehaviour
         }
 
         playerPosition = GameObject.Find("Player").transform;
+
+        enemyPools.Add(easyEnemyPool);
+        enemyPools.Add(mediumEnemyPool);
+        enemyPools.Add(hardEnemyPool);
+        enemyPools.Add(endgameEnemyPool);
     }
 
 
     // Start is called before the first frame update
+
+
+    public void SpawnFirstWave()
+    {
+        GameObject[] enemiesToSpawn = GenerateEnemyList(enemyPools[waveNumberToPoolMap[currentWave]], waveCurrencies[0]);
+        SpawnEnemies(enemiesToSpawn);
+        currentWave++;
+        gameStarted = true;
+    }
+
+
     void Start()
     {
         //spawn first wave
-
-        GameObject[] enemiesToSpawn = GenerateEnemyList(easyEnemyPool, waveCurrencies[0]);
-        SpawnEnemies(enemiesToSpawn);
-        currentWave++;
     }
 
     // Update is called once per frame
     void Update()
     {
 
+        if (!gameStarted)
+        {
+            return;
+        }
+
         enemyCheckTimer -= Time.deltaTime;
         if (enemyCheckTimer <= 0)
         {
             enemyCheckTimer = timeToCheckForEnemies;
-            Debug.Log("Checking for enemies");
+            //            Debug.Log("Checking for enemies");
             if (aliveEnemies == 0 && !isSpawning)
             {
                 Debug.Log("Spawning new wave");
-                if (waveCurrencies.Count > currentWave)
+
+                EnemyCostData[] currentPool;
+                int currency;
+                if (waveNumberToPoolMap.Count <= currentWave)
                 {
-                    GameObject[] enemiesToSpawn = GenerateEnemyList(easyEnemyPool, waveCurrencies[currentWave]);
-                    if (enemiesToSpawn.Length > 0)
-                    {
-                        currentWave++;
-                        SpawnEnemies(enemiesToSpawn);
-                    }
-                    else{
-                        Debug.Log("No enemies to spawn");
-                    }
+                    Debug.LogError("Wave number to pool map does not have enough entries for wave " + currentWave);
+                    currentPool = endgameEnemyPool;
+                    currency = waveCurrencies[waveCurrencies.Count - 1] + (currentWave - waveCurrencies.Count + 1) * 20;
+
                 }
+                else
+                {
+                    currentPool = enemyPools[waveNumberToPoolMap[currentWave]];
+                    currency = waveCurrencies[currentWave];
+                }
+                GameObject[] enemiesToSpawn = GenerateEnemyList(currentPool, currency);
+                if (enemiesToSpawn.Length > 0)
+                {
+                    currentWave++;
+                    SpawnEnemies(enemiesToSpawn);
+                }
+                else
+                {
+                    Debug.Log("No enemies to spawn");
+                }
+
             }
         }
 

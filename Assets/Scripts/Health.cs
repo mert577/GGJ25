@@ -25,6 +25,10 @@ public class Health : MonoBehaviour
 
     public UnityEvent<int> OnDamageTaken = new UnityEvent<int>();
 
+
+    public UnityEvent OnHeal = new UnityEvent();
+    public UnityEvent OnDeath = new UnityEvent();
+
     public bool isStunned = false;
 
     public bool isEnemy = false;
@@ -34,7 +38,15 @@ public class Health : MonoBehaviour
     public int minResourceDrop, maxResourceDrop;
     public GameObject resourceDrop;
 
+    public float resourceDropForce;
 
+
+    public float freezeFrameTime;
+
+
+    public GameObject deathParticles;
+
+    public bool outsideOfWavePool = false;
 
 
     // Start is called before the first frame update
@@ -55,7 +67,7 @@ public class Health : MonoBehaviour
         if (other.gameObject.TryGetComponent<Damager>(out Damager damager))
         {
 
-            TakeDamage(damager.damageAmount, damager.transform.position, damager.isKnockback);
+            TakeDamage(damager.realDamage, damager.transform.position, damager.isKnockback);
         }
     }
 
@@ -67,11 +79,18 @@ public class Health : MonoBehaviour
             if (damager.damagerType != Damager.DamagerType.EnterOnly)
             {
 
-                TakeDamage(damager.damageAmount, damager.transform.position, damager.isKnockback);
+                TakeDamage(damager.realDamage, damager.transform.position, damager.isKnockback);
             }
         }
     }
 
+
+    IEnumerator HitFreezeFrame()
+    {
+        Time.timeScale = .35f;
+        yield return new WaitForSecondsRealtime(freezeFrameTime);
+        Time.timeScale = 1;
+    }
     IEnumerator TurnInvincible(float time)
     {
         isInvincible = true;
@@ -109,11 +128,31 @@ public class Health : MonoBehaviour
             StartCoroutine(TurnStunned());
         }
 
+        if (!isEnemy)
+        {
+            StartCoroutine(HitFreezeFrame());
+        }
+
         StartCoroutine(TurnInvincible(invincibilityTime));
         if (currentHealth <= 0)
         {
             Die();
         }
+    }
+
+
+    public void Heal(int amount)
+    {
+        currentHealth += amount;
+        if (currentHealth > maxHealth)
+        {
+            currentHealth = maxHealth;
+        }
+
+        if(!isEnemy){
+            UIManager.instance.UpdateHealthText(currentHealth);
+        }
+
     }
 
 
@@ -129,15 +168,43 @@ public class Health : MonoBehaviour
 
         if (isEnemy)
         {
-            WaveSpawner.instance.aliveEnemies--;
+            if (!outsideOfWavePool)
+            {
+
+                WaveSpawner.instance.aliveEnemies--;
+            }
             int resourceDropAmount = Random.Range(minResourceDrop, maxResourceDrop);
+            resourceDropAmount = Mathf.RoundToInt(resourceDropAmount * ModifierManager.instance.TryGetModifierValue("wealth"));
             for (int i = 0; i < resourceDropAmount; i++)
             {
-                Vector2 randomPos = (Vector2)transform.position + Random.insideUnitCircle * 1.5f;
-                Instantiate(resourceDrop, randomPos, Quaternion.identity);
+                Vector2 randomPos = (Vector2)transform.position + Random.insideUnitCircle.normalized * .3f;
+
+                GameObject res = Instantiate(resourceDrop, randomPos, Quaternion.identity);
+
+                //add random force to the resource
+                Rigidbody2D resRb = res.GetComponent<Rigidbody2D>();
+                resRb.AddForce(Random.insideUnitCircle * resourceDropForce, ForceMode2D.Impulse);
             }
         }
-        Destroy(gameObject, .2f);
+        OnDeath.Invoke();
+
+        if (deathParticles != null)
+        {
+            //   InstantiateDeathParticles();
+            GameObject particles = Instantiate(deathParticles, transform.position, Quaternion.identity);
+        }
+
+        if (isEnemy)
+        {
+            GameManager.instance.AddScore(10);
+            Destroy(gameObject, .2f);
+
+        }
+        else
+        {
+            GetComponent<PlayerControls>().playerCoreSprite.SetActive(false);
+            GetComponent<PlayerControls>().enabled = false;
+        }
 
     }
 

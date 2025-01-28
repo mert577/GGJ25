@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5360edd5d3ef2bb4a9525b4581686aa6, type: 3}
   m_Name: PulseMover
   m_EditorClassIdentifier: 
-  cost: 1
+  cost: 2
   enemyPrefab: {fileID: 7009369927452256491, guid: 8be56d84071427c4680102f628cd0696, type: 3}

@@ -15,7 +15,6 @@ MonoBehaviour:
   upgradeName: DotDamage+
   upgradeDescription: Your bubble's DoT damage increases
   upgradeCost: 15
-  modifierValue: 1.1
+  upgradeSprite: {fileID: 21300000, guid: 722d8a5ccbffd5349a2d084f6f21aab9, type: 3}
   modifierKey: dotDamage
-  upgradeLevel: 0
-  modifierValues: []
+  modifierValue: 1.1

@@ -15,7 +15,6 @@ MonoBehaviour:
   upgradeName: Jump Cooldown
   upgradeDescription: Your jump cooldown gets shorter
   upgradeCost: 15
-  modifierValue: 1.5
+  upgradeSprite: {fileID: 21300000, guid: 0968f4b20530c6441a1fb58693a387ac, type: 3}
   modifierKey: jumpCooldown
-  upgradeLevel: 0
-  modifierValues: []
+  modifierValue: 1.5

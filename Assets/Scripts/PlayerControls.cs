@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using DG.Tweening;
 using Cinemachine;
+using UnityEngine.Events;
 
 public class PlayerControls : MonoBehaviour
 {
@@ -30,7 +31,7 @@ public class PlayerControls : MonoBehaviour
     float bubbleThrowForce, bubbleWaitTime, bubbleReturnTime, screenShakeForce;
 
     [SerializeField]
-    GameObject playerCoreSprite;
+    public GameObject playerCoreSprite;
 
     [SerializeField]
     bool isBubbled = true;
@@ -68,10 +69,36 @@ public class PlayerControls : MonoBehaviour
     [SerializeField]
     GameObject hurtParticlePrefab;
 
+    [SerializeField]
+
+    float recallForce;
+
 
     float jumpCooldown = 1f;
     float jumpCooldownTimer = 0f;
 
+
+    public UnityEvent onBubbleThrown = new UnityEvent();
+    public UnityEvent onBubbleReached = new UnityEvent();
+
+    public bool isRecallingBubble = false;
+
+
+    public bool canHaveBubble = true;
+
+    public float lastVelocityMagnitude;
+
+
+    public LineRenderer lineRenderer;
+
+
+
+    IEnumerator GoIntoCanHaveBubbleCooldown()
+    {
+        canHaveBubble = false;
+        yield return new WaitForSeconds(0.5f);
+        canHaveBubble = true;
+    }
 
 
     IEnumerator LerpObjectToPosition(GameObject objectToMove, float time, System.Action callback = null)
@@ -104,17 +131,28 @@ public class PlayerControls : MonoBehaviour
     void Start()
     {
         bubble.GetComponent<Rigidbody2D>().isKinematic = true;
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
 
+        
+
+
+
+
+
+
+
         jumpCooldownTimer -= Time.deltaTime;
         if (jumpCooldownTimer < 0)
         {
             jumpCooldownTimer = 0;
         }
+
 
         UIManager.instance.UpdateJumpCooldown(jumpCooldownTimer / (jumpCooldown * ModifierManager.instance.TryGetModifierValue("jumpCooldown")));
 
@@ -130,16 +168,20 @@ public class PlayerControls : MonoBehaviour
             if (isBubbled)
             {
                 ThrowBubble();
+                StartCoroutine(GoIntoCanHaveBubbleCooldown());
+
             }
         }
 
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButton(1))
         {
-            if (!isBubbled)
+            if (!isBubbled && !isJumping)
             {
-                RecallBubble();
+                RecallBubbleWithForce();
             }
         }
+
+
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -147,6 +189,18 @@ public class PlayerControls : MonoBehaviour
             {
                 JumpToBubble();
             }
+        }
+
+
+        if (!isBubbled && canHaveBubble && bubble.transform.parent == null)
+        {
+
+            if (Vector2.Distance(transform.position, bubble.transform.position) < 1.2f)
+            {
+
+                ResetBubble();
+            }
+
         }
 
 
@@ -183,6 +237,8 @@ public class PlayerControls : MonoBehaviour
         {
             rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxSpeed);
         }
+
+
     }
 
 
@@ -257,10 +313,23 @@ public class PlayerControls : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, stompRadius);
     }
 
+
+    void RecallBubbleWithForce()
+    {
+        Vector2 force = (transform.position - bubble.transform.position);
+        force = Vector2.ClampMagnitude(force, 1f);
+
+
+
+        force *= recallForce;
+        bubble.GetComponent<Rigidbody2D>().AddForce(force);
+    }
+
     void RecallBubble()
     {
         IEnumerator RecallBubbleCoroutine()
         {
+            isRecallingBubble = true;
 
             //lerp the bubble back to the player
             float timeElapsed = 0;
@@ -298,21 +367,47 @@ public class PlayerControls : MonoBehaviour
         bubbleRb.velocity = rb.velocity;
         bubbleRb.isKinematic = false;
         bubbleRb.AddForce(directionToMouse * bubbleThrowForce * ModifierManager.instance.TryGetModifierValue("throwForce"), ForceMode2D.Impulse);
-
+        onBubbleThrown.Invoke();
 
     }
 
     void ResetBubble()
     {
-        Rigidbody2D bubbleRb = bubble.GetComponent<Rigidbody2D>();
-        bubbleRb.isKinematic = true;
-        bubbleRb.velocity = Vector2.zero;
-        bubble.transform.parent = transform;
-        bubble.transform.localPosition = Vector3.zero;
-        isBubbled = true;
+        if (isRecallingBubble)
+        {
+            return;
+        }
+        StartCoroutine(_());
+        IEnumerator _()
+        {
+
+            Rigidbody2D bubbleRb = bubble.GetComponent<Rigidbody2D>();
+            bubbleRb.isKinematic = true;
+            bubbleRb.velocity = Vector2.zero;
+            bubble.transform.parent = transform;
+
+            float lerpTime = .12f;
+            float timeElapsed = 0;
+
+            while (timeElapsed < lerpTime)
+            {
+                bubble.transform.localPosition = Vector3.Lerp(bubble.transform.localPosition, Vector3.zero, timeElapsed / lerpTime);
+                timeElapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            isRecallingBubble = false;
+            isBubbled = true;
+            onBubbleReached.Invoke();
+        }
+
     }
     void FixedUpdate()
     {
         Movement();
+
+
+
+
     }
 }

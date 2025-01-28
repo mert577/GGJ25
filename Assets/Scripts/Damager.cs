@@ -10,7 +10,13 @@ public class Damager : MonoBehaviour
 
     public LayerMask damageableLayer;
 
-    public int damageAmount;
+    [SerializeField]
+    int baseDamage;
+
+    public int realDamage;
+
+    public bool isPlayer;
+
 
 
     public enum DamagerType{
@@ -31,6 +37,14 @@ public class Damager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(isPlayer){
+            realDamage = Mathf.RoundToInt(baseDamage * ModifierManager.instance.TryGetModifierValue("bubbleDamage"));
+        }
+        else{
+            realDamage = baseDamage;
+        }
     }
+
+
+    
 }

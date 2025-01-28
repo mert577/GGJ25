@@ -4,13 +4,18 @@ using UnityEngine;
 
 public class FasterBubbleThrowUpgrade : Upgrade
 {
-    public float bubbleSpeedMultiplier = 1.5f;
-    public float bubbleSizeMultiplier = 1.5f;
-    public float bubbleDamageMultiplier = 1.5f;
+    public string modifierKey;
+    public float modifierValue;
+
+
 
     public override void ApplyUpgrade()
     {
         Debug.Log("Applying upgrade: " + upgradeName);
+        
+        ModifierManager.instance.UpgradeModifierLevel(modifierKey);
+
+
     }
 }
 

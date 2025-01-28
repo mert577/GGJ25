@@ -15,5 +15,6 @@ MonoBehaviour:
   upgradeName: Area+
   upgradeDescription: Your bubble's DoT area grows
   upgradeCost: 15
-  modifierValue: 1.1
+  upgradeSprite: {fileID: 21300000, guid: 5df676f1163ef05449ba7ad8e87db185, type: 3}
   modifierKey: dotArea
+  modifierValue: 1.1

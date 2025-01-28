@@ -14,6 +14,13 @@ public class EnemyGraphics : MonoBehaviour
     float punchScaleMagnitutde;
 
 
+    [SerializeField]
+    GameObject hurtParticles;
+
+
+
+
+
 
 
      private void Awake() {
@@ -23,6 +30,7 @@ public class EnemyGraphics : MonoBehaviour
     void Start()
     {
         health.OnDamageTaken.AddListener(PlayDamageAnimation);
+        health.OnDeath.AddListener(DeathAnnimation);
     }
 
     // Update is called once per frame
@@ -39,8 +47,11 @@ public class EnemyGraphics : MonoBehaviour
             //flash white and do scale bounce
 
             spriteRenderer.DORewind();
+            spriteRenderer.transform.DORewind();
             spriteRenderer.DOColor(Color.white, 0.1f);
             spriteRenderer.transform.DOPunchScale(Vector3.one * punchScaleMagnitutde, 0.2f);
+            GameObject particles = Instantiate(hurtParticles, transform.position, Quaternion.identity);
+            Destroy(particles, 1f);
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.DOColor(originalColor, 0.1f);
 
@@ -52,6 +63,10 @@ public class EnemyGraphics : MonoBehaviour
         StartCoroutine(DamageAnimation());
     }
 
+    void DeathAnnimation()
+    {
+        //play death animation
+    }
 
     private void OnDestroy() {
         health.OnDamageTaken.RemoveListener(PlayDamageAnimation);

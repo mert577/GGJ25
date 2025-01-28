@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5360edd5d3ef2bb4a9525b4581686aa6, type: 3}
+  m_Name: MortarEnemy
+  m_EditorClassIdentifier: 
+  cost: 9
+  enemyPrefab: {fileID: 7009369927452256491, guid: 8ff00cb60d8f34e47b58f9b03f1a696e, type: 3}

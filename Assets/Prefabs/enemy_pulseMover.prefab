@@ -53,6 +53,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 8610227539847108441}
   health: {fileID: 4498543186958978238}
   punchScaleMagnitutde: 0.8
+  hurtParticles: {fileID: 5995690708934138355, guid: ee912fd3b16eb7644bb2a2b15d03c8c7, type: 3}
 --- !u!114 &4498543186958978238
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,12 +75,21 @@ MonoBehaviour:
   OnDamageTaken:
     m_PersistentCalls:
       m_Calls: []
+  OnHeal:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
   isStunned: 0
   isEnemy: 1
   isDead: 0
   minResourceDrop: 1
   maxResourceDrop: 5
   resourceDrop: {fileID: 3927964224658056003, guid: 38eb4bcc40fff5c4b9a4d9e81ca93a5a, type: 3}
+  resourceDropForce: 15
+  freezeFrameTime: 0
+  deathParticles: {fileID: 0}
 --- !u!58 &8404146396581137187
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -378,6 +388,8 @@ MonoBehaviour:
   damageableLayer:
     serializedVersion: 2
     m_Bits: 0
-  damageAmount: 1
+  baseDamage: 0
+  realDamage: 0
+  isPlayer: 0
   damagerType: 0
   isKnockback: 0

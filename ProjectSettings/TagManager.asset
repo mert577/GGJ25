@@ -16,7 +16,7 @@ TagManager:
   - EnemyDamager
   - Player
   - PlayerDamager
-  - 
+  - PlayerOnly
   - 
   - 
   - 
